@@ -82,3 +82,8 @@
     - remove_ssh_keys
     #- { skip_missing: True } #FIXME: this flag es documented but doesnt work with ansible 1.9.4
   tags: ['users','remove_ssh_keys']
+
+- name: add to sudoers
+  lineinfile: dest=/etc/sudoers state=present regexp='^{{item.key}} ALL\=' line='{{item.key}} ALL=(ALL) NOPASSWD:ALL' validate='/usr/sbin/visudo -cf %s'
+  with_dict: users | default({})
+  when: ((item.value.sudoer is defined and item.value.sudoer) or (users_defaults.sudoer is defined and users_defaults.sudoer))

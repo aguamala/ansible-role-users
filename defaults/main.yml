@@ -6,3 +6,4 @@ users_defaults:
   createhome: yes           # Create home for users created.
   create_user_group: yes    # When creating users, also create groups with their user name.
   removehome: no            # When removing a user delete their home directory too.
+  sudoer: no               # Add user to sudoers ALL=(ALL) NOPASSWD:ALL  use with caution
