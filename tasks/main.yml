@@ -64,24 +64,31 @@
   when: (item.value.uid is not defined)
   tags: ['users','groups']
 
+- name: Manage SSH Keys
+  authorized_key: user={{item.key}}
+                  key="{{item.value.ssh_key}}"
+                  manage_dir=yes
+  with_dict: users | default({})
+  when: (item.value.ssh_key is defined)
+  tags: ['users','ssh-key']
 
 #FIXME: adding multiple ssh keys is possible using with_subelements but subkeys must exist
 #http://docs.ansible.com/ansible/playbooks_loops.html#looping-over-subelements
-- name: add ssh keys
-  authorized_key: "user={{item.0.name}} key='{{ lookup('file', item.1) }}'"
-  with_subelements:
-    - users
-    - add_ssh_keys
-    #- { skip_missing: True } #FIXME: this flag es documented but doesnt work with ansible 1.9.4
-  tags: ['users','add_ssh_key']
-
-- name: add ssh keys
-  authorized_key: "user={{item.0.name}} key='{{ lookup('file', item.1) }}' state=absent"
-  with_subelements:
-    - users
-    - remove_ssh_keys
-    #- { skip_missing: True } #FIXME: this flag es documented but doesnt work with ansible 1.9.4
-  tags: ['users','remove_ssh_keys']
+#- name: add ssh keys
+#  authorized_key: "user={{item.0.name}} key='{{ lookup('file', item.1) }}'"
+#  with_subelements:
+#    - users
+#    - add_ssh_keys
+#    #- { skip_missing: True } #FIXME: this flag es documented but doesnt work with ansible 1.9.4
+#  tags: ['users','add_ssh_key']
+#
+#- name: add ssh keys
+#  authorized_key: "user={{item.0.name}} key='{{ lookup('file', item.1) }}' state=absent"
+#  with_subelements:
+#    - users
+#    - remove_ssh_keys
+#    #- { skip_missing: True } #FIXME: this flag es documented but doesnt work with ansible 1.9.4
+#  tags: ['users','remove_ssh_keys']
 
 - name: add to sudoers
   lineinfile: dest=/etc/sudoers state=present regexp='^{{item.key}} ALL\=' line='{{item.key}} ALL=(ALL) NOPASSWD:ALL' validate='/usr/sbin/visudo -cf %s'
